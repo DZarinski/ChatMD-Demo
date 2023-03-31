@@ -13,20 +13,29 @@ const openai = new OpenAIApi(configuration);
 const port = process.env.PORT || 3000;
 
 app.post("/chat", async (req, res) => {
+  // headers
   res.setHeader("Content-Type", "text/event-stream");
   res.setHeader("Access-Control-Allow-Origin", "*");
 
-  const prompt = req.body.messages;
+  // messages
+  const messages = req.body.messeges;
 
-  const messages = [{ role: "user", content: "Hello" }];
+  // optional logs
+  //console.log("Client connected");
+
+  // handle close
+  res.on("close", () => {
+    //console.log("Connection closed");
+  });
 
   try {
+    // openai chat completion
     const completion = await openai.createChatCompletion(
       {
         model: "gpt-3.5-turbo",
         messages: generateMessages(messages),
         temperature: 0.6,
-        max_tokens: 150,
+        max_tokens: 300,
         stream: true,
       },
       {
@@ -43,15 +52,14 @@ app.post("/chat", async (req, res) => {
       for (const line of lines) {
         const message = line.replace(/^data: /, "");
         if (message === "[DONE]") {
-          res.end();
+          res.end(`data: [DONE]\n\n`);
           return;
         }
 
         const json = JSON.parse(message);
         const token = json.choices[0].delta.content;
         if (token) {
-          console.log(token);
-          res.write(token);
+          res.write(`data: ${JSON.stringify({ content: token })}\n\n`);
         }
       }
     }
@@ -79,11 +87,12 @@ app.get("/", (req, res) => {
 
   const intervalId = setInterval(() => {
     const date = new Date().toLocaleString();
-    res.write("testt");
+    res.write(`data: ${JSON.stringify({ content: "hi! my " })}\n\n`);
+    res.end(`data: [DONE]\n\n`);
   }, 1000);
 
   res.on("close", () => {
-    console.log("Client closed connection");
+    console.log("Connection closed");
     clearInterval(intervalId);
     res.end();
   });
