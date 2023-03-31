@@ -6,8 +6,8 @@ function ChatMessage({ role, content }) {
 
   return (
     <HStack
-      space={3}
-      px="5"
+      space={2}
+      px="3"
       py="5"
       bgColor={isUser ? "white" : "coolGray.100"}
       borderColor="gray.300"
@@ -16,10 +16,10 @@ function ChatMessage({ role, content }) {
     >
       <Center bgColor={isUser ? "gray.600" : "green.500"} w="7" h="7">
         <Text fontWeight="medium" color="white">
-          {isUser ? "D" : "MD"}
+          {isUser ? "D" : "AI"}
         </Text>
       </Center>
-      <Text fontSize="lg" flexShrink={1}>
+      <Text fontSize="md" flexShrink={1}>
         {content}
       </Text>
     </HStack>
